@@ -1,0 +1,10 @@
+---
+- name: Backup MongoDB to S3
+  hosts: database
+  become: yes
+  vars_files:
+    - group_vars/all.yml
+  roles:
+    - awscli
+    - mongodb_backup
+

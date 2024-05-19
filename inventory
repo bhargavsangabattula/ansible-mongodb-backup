@@ -1,0 +1,7 @@
+[database]
+db_instance ansible_host=15.206.171.19 ansible_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/AWSlab-key.pem
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+
+
