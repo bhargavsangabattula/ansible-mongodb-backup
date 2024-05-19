@@ -1,0 +1,42 @@
+---
+- name: Create backup directory
+  file:
+    path: "{{ mongo_backup_dir }}"
+    state: directory
+
+- name: Take MongoDB dump
+  command: >
+    mongodump --out {{ mongo_backup_dir }}/{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}
+
+- name: Compress backup
+  command: >
+    tar -czf {{ mongo_backup_dir }}/mongo_backup_{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}.tar.gz -C {{ mongo_backup_dir }} .
+
+- name: Upload backup to S3
+  command: >
+    aws s3 cp {{ mongo_backup_dir }}/mongo_backup_{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}.tar.gz s3://{{ s3_bucket }}/
+
+- name: Clean up local backup files
+  file:
+    path: "{{ mongo_backup_dir }}"
+    state: absent
+
+- name: Create backup script
+  copy:
+    dest: /usr/local/bin/mongodb_backup.sh
+    content: |
+      #!/bin/bash
+      ansible-playbook /path/to/ansible-mongodb-backup/backup.yml
+
+- name: Make backup script executable
+  file:
+    path: /usr/local/bin/mongodb_backup.sh
+    mode: '0755'
+
+- name: Create cron job for daily backup
+  cron:
+    name: "MongoDB Backup"
+    minute: "0"
+    hour: "2"
+    job: "/usr/local/bin/mongodb_backup.sh"
+

@@ -1,0 +1,19 @@
+---
+- name: Install pip
+  apt:
+    name: python3-pip
+    state: present
+
+- name: Install AWS CLI
+  pip:
+    name: awscli
+    state: present
+
+- name: Configure AWS CLI
+  command: >
+    aws configure set {{ item.key }} {{ item.value }}
+  with_items:
+    - { key: 'aws_access_key_id', value: '{{ aws_access_key }}' }
+    - { key: 'aws_secret_access_key', value: '{{ aws_secret_key }}' }
+    - { key: 'region', value: '{{ aws_region }}' }
+
