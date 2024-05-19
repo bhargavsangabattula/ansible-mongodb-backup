@@ -1,5 +1,5 @@
 s3_bucket: mongodb-backup-ansiblelab
 mongo_backup_dir: /tmp/mongo_backup
 aws_region: ap-south-1
-aws_access_key: AKIAZEZFMDNBL7JBPNKE
-aws_secret_key: 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
+aws_access_key: XXXXX
+aws_secret_key: XXXXX
