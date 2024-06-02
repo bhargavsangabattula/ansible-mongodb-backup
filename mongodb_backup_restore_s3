@@ -1,0 +1,4 @@
+mongodb-backup-docker-bitnami
+encrypt and decrypt with openssl
+upload to s3
+restore backup
