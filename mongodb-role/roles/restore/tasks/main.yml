@@ -1,0 +1,13 @@
+---
+- name: Uncompress the backup file
+  unarchive:
+    src: /tmp/mongodb_backup.tar.gz
+    dest: /tmp/backup
+    remote_src: yes
+  when: decrypt is defined and decrypt
+
+- name: Restore MongoDB data
+  command: >
+    sudo docker exec -i {{ mongo_container_name }} /bin/bash -c
+    'mongorestore --drop /tmp/backup --username=root --password=Getinto@1234 --authenticationDatabase=admin'
+  when: restore is defined and restore

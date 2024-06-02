@@ -1,0 +1,57 @@
+---
+- name: Clean up old backup files
+  file:
+    path: /tmp/mongodb_backup*
+    state: absent
+  when: backup is defined and backup
+
+- name: Run mongodump command
+  command: >
+    sudo docker exec -i {{ mongo_container_name }} /bin/bash -c
+    'mongodump --out /tmp/backup --username=root --password=Getinto@1234 --authenticationDatabase=admin &&
+    tar -czvf /tmp/mongodb_backup.tar.gz -C /tmp/backup .'
+  register: mongodump_output
+  when: backup is defined and backup
+
+- name: Debug - Show mongodump output
+  debug:
+    var: mongodump_output
+  when: backup is defined and backup
+
+- name: Copy the compressed backup file to host
+  command: >
+    sudo docker cp {{ mongo_container_name }}:/tmp/mongodb_backup.tar.gz /tmp/mongodb_backup.tar.gz
+  when: backup is defined and backup
+
+- name: Check if the compressed backup file exists on the host
+  stat:
+    path: /tmp/mongodb_backup.tar.gz
+  register: backup_compressed
+  when: backup is defined and backup
+
+- name: Debug - Check compressed backup file on the host
+  debug:
+    msg: "Compressed backup file exists: {{ backup_compressed.stat.exists }}"
+  when: backup is defined and backup
+
+- name: Upload encrypted backup to S3
+  aws_s3:
+    bucket: "mongodb-backup-ansiblelab"
+    object: "mongodb_backup.tar.gz.enc"
+    src: /tmp/mongodb_backup.tar.gz.enc
+    mode: put
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: backup is defined and backup
+
+- name: Download encrypted backup from S3
+  aws_s3:
+    bucket: "mongodb-backup-ansiblelab"
+    object: "mongodb_backup.tar.gz.enc"
+    dest: /tmp/mongodb_backup.tar.gz.enc
+    mode: get
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: restore or decrypt

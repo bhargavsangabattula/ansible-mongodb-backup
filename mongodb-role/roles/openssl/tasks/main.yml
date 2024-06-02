@@ -1,0 +1,23 @@
+---
+- name: Encrypt the backup file using OpenSSL
+  command: "openssl enc -aes-256-cbc -salt -in /tmp/mongodb_backup.tar.gz -out /tmp/mongodb_backup.tar.gz.enc -k {{ openssl_password }}"
+  args:
+    creates: /tmp/mongodb_backup.tar.gz.enc
+  when: backup is defined and backup
+
+- name: Check if the encrypted backup file exists
+  stat:
+    path: /tmp/mongodb_backup.tar.gz.enc
+  register: backup_encrypted
+  when: backup is defined and backup
+
+- name: Debug - Check encrypted backup file
+  debug:
+    msg: "Encrypted backup file exists: {{ backup_encrypted.stat.exists }}"
+  when: backup is defined and backup
+
+- name: Decrypt the backup file using OpenSSL
+  command: "openssl enc -d -aes-256-cbc -in /tmp/mongodb_backup.tar.gz.enc -out /tmp/mongodb_backup.tar.gz -k {{ openssl_password }}"
+  args:
+    creates: /tmp/mongodb_backup.tar.gz
+  when: decrypt is defined and decrypt

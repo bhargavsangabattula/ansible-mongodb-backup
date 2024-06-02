@@ -1,0 +1,14 @@
+---
+- name: MongoDB Backup and Restore with Docker
+  hosts: 3.109.185.161
+  become: true
+  vars_files:
+    - vars/main.yml
+    - vars/vault.yml
+  roles:
+    - role: common
+    - role: docker
+    - role: mongodb
+    - role: s3_backup
+    - role: openssl
+    - role: restore

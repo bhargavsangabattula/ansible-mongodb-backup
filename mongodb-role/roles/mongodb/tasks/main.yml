@@ -1,0 +1,19 @@
+---
+- name: Pull Bitnami MongoDB Docker image
+  docker_image:
+    name: bitnami/mongodb
+    source: pull
+
+- name: Run Bitnami MongoDB Docker container
+  docker_container:
+    name: "{{ mongo_container_name }}"
+    image: bitnami/mongodb
+    state: started
+    restart_policy: always
+    ports:
+      - "27017:27017"
+    env:
+      MONGODB_ROOT_PASSWORD: "Getinto@1234"
+      MONGODB_USERNAME: "mongodbtest"
+      MONGODB_PASSWORD: "Getinto@1234"
+      MONGODB_DATABASE: "bhargav_lab"

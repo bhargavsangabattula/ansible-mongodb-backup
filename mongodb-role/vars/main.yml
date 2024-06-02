@@ -1,0 +1,7 @@
+---
+mongo_container_name: "mongodb"
+aws_region: "ap-south-1"
+openssl_password: "mongodb@1234"
+backup: true
+decrypt: true
+restore: true
